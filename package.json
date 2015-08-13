@@ -8,7 +8,6 @@
   },
   "main": "src/index.js",
   "scripts": {
-    "example": "comn -f example/src/index.js -o example/index.js",
     "test": "npm run test-node",
     "test-node": "node ./test | ./node_modules/.bin/tap-spec",
     "test-node-raw": "node ./test",
