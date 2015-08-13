@@ -3,8 +3,7 @@ var tape = require("tape"),
 
 
 function createArray(size) {
-    var array = new Array(size),
-        i = size;
+    var array = new Array(size);
 
     while (size--) {
         array[size] = size;
@@ -31,13 +30,24 @@ tape("Vector size() should return size of the Vector", function(assert) {
     assert.end();
 });
 
-tape("Vector conj(...values) should add values to font of Vector", function(assert) {
+tape("Vector conj(...values) should add values to end of Vector", function(assert) {
     var a = new Vector(0, 1),
         b = a.conj(2),
         c = b.conj(3, 4, 5);
 
     assert.deepEqual(b.toArray(), [0, 1, 2]);
     assert.deepEqual(c.toArray(), [0, 1, 2, 3, 4, 5]);
+
+    assert.end();
+});
+
+tape("Vector unshift(...values) should add values to front of list", function(assert) {
+    var a = new Vector(1, 2),
+        b = a.unshift(0),
+        c = a.unshift(0, 1, 2);
+
+    assert.deepEqual(b.toArray(), [0, 1, 2]);
+    assert.deepEqual(c.toArray(), [2, 1, 0, 1, 2]);
 
     assert.end();
 });
@@ -50,6 +60,23 @@ tape("Vector pop() should return Vector without last element of Vector", functio
     }
 
     assert.equal(v.size(), 0);
+    assert.end();
+});
+
+tape("Vector shift() should return list without first element of list", function(assert) {
+    var a = new Vector(1, 2, 3),
+        b = a.shift(),
+        c = b.shift(),
+        d = c.shift(),
+        e = d.shift();
+
+    assert.deepEqual(b.toArray(), [2, 3]);
+    assert.deepEqual(c.toArray(), [3]);
+    assert.equal(b.size(), 2);
+    assert.equal(c.size(), 1);
+    assert.equal(d.size(), 0);
+    assert.equal(d, e);
+
     assert.end();
 });
 
@@ -73,6 +100,52 @@ tape("Vector first() should return first element from vector", function(assert) 
 tape("Vector last() should return last element from vector", function(assert) {
     var a = new Vector(1, 2, 3);
     assert.equal(a.last(), 3);
+    assert.end();
+});
+
+tape("Vector set(index : Int, value : Any) should return a new Vector with the updated element at index if value is not the same", function(assert) {
+    var a = new Vector(createArray(33)),
+        b = a.set(0, 32),
+        c = b.set(0, 32),
+        d = c.set(32, 0),
+        e = d.set(32, 0);
+
+    assert.equal(b.get(0), 32);
+    assert.equal(b, c);
+
+    assert.equal(d.get(32), 0);
+    assert.equal(d, e);
+
+    assert.end();
+});
+
+tape("Vector insert(index : Int, ...values : Any) should return new Vector with inserted values at index", function(assert) {
+    var a = new Vector(0, 1, 2),
+        b = a.insert(0, 1),
+        c = a.insert(2, 3),
+        d = a.insert(1, 1, 2);
+
+    assert.deepEqual(b.toArray(), [1, 0, 1, 2]);
+    assert.deepEqual(c.toArray(), [0, 1, 3, 2]);
+    assert.deepEqual(d.toArray(), [0, 1, 2, 1, 2]);
+
+    assert.end();
+});
+
+tape("Vector remove(index : Int[, count = 1 : int]) should return new Vector with the removed count from index", function(assert) {
+    var a = new Vector(0, 1, 2),
+        b = a.remove(0),
+        c = a.remove(1),
+        d = a.remove(2),
+        e = a.remove(0, 2),
+        f = e.remove(0);
+
+    assert.deepEqual(b.toArray(), [1, 2]);
+    assert.deepEqual(c.toArray(), [0, 2]);
+    assert.deepEqual(d.toArray(), [0, 1]);
+    assert.deepEqual(e.toArray(), [2]);
+    assert.deepEqual(f.toArray(), []);
+
     assert.end();
 });
 

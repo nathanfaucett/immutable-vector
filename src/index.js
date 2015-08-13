@@ -41,9 +41,9 @@ function Vector_createVector(_this, value, values) {
     var length = values.length;
 
     if (isArrayLike(value) && length === 1) {
-        return Vector_conjArray(_this, value);
+        return Vector_conjArray(_this, value, true);
     } else if (length >= 1) {
-        return Vector_conjArray(_this, values);
+        return Vector_conjArray(_this, values, true);
     } else {
         return emptyVector;
     }
@@ -139,39 +139,126 @@ VectorPrototype.last = function() {
     }
 };
 
+function newPathSet(node, index, value, level) {
+    var newNode = cloneNode(node),
+        subIndex;
+
+    if (level === 0) {
+        newNode.array[index & MASK] = value;
+    } else {
+        subIndex = (index >>> level) & MASK;
+        newNode.array[subIndex] = newPathSet(node.array[subIndex], index, value, level - 5);
+    }
+
+    return newNode;
+}
+
 function Vector_set(_this, index, value) {
-    var vector = new Vector(INTERNAL_CREATE);
-    return vector;
+    var tail, maskedIndex, vector;
+
+    if (index >= Vector_tailOff(_this)) {
+        tail = _this.__tail;
+        maskedIndex = index & MASK;
+
+        if (isEqual(tail[maskedIndex], value)) {
+            return _this;
+        } else {
+            tail = cloneArray(tail);
+            tail[maskedIndex] = value;
+            vector = Vector_clone(_this);
+            vector.__tail = tail;
+            return vector;
+        }
+    } else if (isEqual(Vector_get(_this, index), value)) {
+        return _this;
+    } else {
+        vector = Vector_clone(_this);
+        vector.__root = newPathSet(_this.__root, index, value, _this.__shift);
+        return vector;
+    }
 }
 
 VectorPrototype.set = function(index, value) {
-    var node, oldValue;
-
     if (index < 0 || index >= this.__size) {
         throw new Error("Vector set(index, value) index out of bounds");
     } else {
-        if (isEqual(Vector_get(this, index), value)) {
-            return this;
-        } else {
-            return Vector_set(this, index, value);
-        }
+        return Vector_set(this, index, value);
     }
 };
 
 
-function Vector_insert(_this, node, index, values) {
-    var vector = new Vector(INTERNAL_CREATE);
-    return vector;
+function Vector_insert(_this, index, values) {
+    var size = _this.__size,
+        length = values.length,
+        newSize = size + length,
+        results = new Array(newSize),
+        j = 0,
+        k = 0,
+        i, il;
+
+    i = -1;
+    il = index - 1;
+    while (i++ < il) {
+        results[i] = Vector_get(_this, k++);
+    }
+
+    i = index - 1;
+    il = index + length - 1;
+    while (i++ < il) {
+        results[i] = values[j++];
+    }
+
+    i = index + length - 1;
+    il = newSize - 1;
+    while (i++ < il) {
+        results[i] = Vector_get(_this, k++);
+    }
+
+    return Vector_conjArray(new Vector(INTERNAL_CREATE), results, true);
 }
 
-VectorPrototype.insert = function(index) {};
+VectorPrototype.insert = function(index) {
+    if (index < 0 || index >= this.__size) {
+        throw new Error("Vector set(index, value) index out of bounds");
+    } else {
+        return Vector_insert(this, index, fastSlice(arguments, 1));
+    }
+};
 
-function Vector_remove(_this, node, count) {
-    var vector = new Vector(INTERNAL_CREATE);
-    return vector;
+function Vector_remove(_this, index, count) {
+    var size = _this.__size,
+        results = new Array(size - count),
+        j = 0,
+        i, il;
+
+    i = -1;
+    il = index - 1;
+    while (i++ < il) {
+        results[j++] = Vector_get(_this, i);
+    }
+
+    i = index + count - 1;
+    il = size - 1;
+    while (i++ < il) {
+        results[j++] = Vector_get(_this, i);
+    }
+
+    return Vector_conjArray(new Vector(INTERNAL_CREATE), results, true);
 }
 
-VectorPrototype.remove = function(index, count) {};
+VectorPrototype.remove = function(index, count) {
+    var size = this.__size;
+
+    count = count || 1;
+
+    if (index < 0 || index >= size) {
+        throw new Error("Vector remove(index[, count=1]) index out of bounds");
+    } else if (count > 0) {
+        return Vector_remove(this, index, count);
+    } else {
+        return this;
+    }
+};
 
 function newPath(node, level) {
     var newNode;
@@ -241,10 +328,15 @@ function Vector_conj(_this, value) {
     return _this;
 }
 
-function Vector_conjArray(_this, values) {
-    var size = _this.__size,
-        i = -1,
+function Vector_conjArray(_this, values, mutable) {
+    var i = -1,
         il = values.length - 1;
+
+    if (!mutable) {
+        if (_this.__size - Vector_tailOff(_this) < SIZE) {
+            _this.__tail = cloneArray(_this.__tail);
+        }
+    }
 
     while (i++ < il) {
         Vector_conj(_this, values[i]);
@@ -255,26 +347,16 @@ function Vector_conjArray(_this, values) {
 
 function Vector_clone(_this) {
     var vector = new Vector(INTERNAL_CREATE);
-
     vector.__root = _this.__root;
     vector.__tail = _this.__tail;
     vector.__size = _this.__size;
     vector.__shift = _this.__shift;
-
     return vector;
 }
 
 VectorPrototype.conj = function() {
-    var vector;
-
     if (arguments.length !== 0) {
-        vector = Vector_clone(this);
-
-        if (vector.__size - Vector_tailOff(vector) < SIZE) {
-            vector.__tail = cloneArray(this.__tail);
-        }
-
-        return Vector_conjArray(vector, arguments);
+        return Vector_conjArray(Vector_clone(this), arguments, false);
     } else {
         return this;
     }
@@ -282,16 +364,33 @@ VectorPrototype.conj = function() {
 
 VectorPrototype.push = VectorPrototype.conj;
 
-function Vector_unshift(_this, args, length) {
-    var vector = new Vector(INTERNAL_CREATE);
-    return vector;
+function Vector_unshift(_this, values) {
+    var size = _this.__size,
+        length = values.length,
+        newSize = size + length,
+        results = new Array(newSize),
+        j = length - 1,
+        k = 0,
+        i, il;
+
+    i = -1;
+    il = length - 1;
+    while (i++ < il) {
+        results[k++] = values[j--];
+    }
+
+    i = -1;
+    il = size - 1;
+    while (i++ < il) {
+        results[k++] = Vector_get(_this, i);
+    }
+
+    return Vector_conjArray(new Vector(INTERNAL_CREATE), results, true);
 }
 
 VectorPrototype.unshift = function() {
-    var length = arguments.length;
-
-    if (length !== 0) {
-        return Vector_unshift(this, arguments, length);
+    if (arguments.length !== 0) {
+        return Vector_unshift(this, arguments);
     } else {
         return this;
     }
@@ -363,7 +462,18 @@ VectorPrototype.pop = function() {
 };
 
 function Vector_shift(_this) {
+    var size = _this.__size,
+        newSize = size - 1,
+        results = new Array(newSize),
+        j = 0,
+        i = 0,
+        il = size - 1;
 
+    while (i++ < il) {
+        results[j++] = Vector_get(_this, i);
+    }
+
+    return Vector_conjArray(new Vector(INTERNAL_CREATE), results, true);
 }
 
 VectorPrototype.shift = function() {
@@ -444,17 +554,16 @@ VectorPrototype.toString = function() {
 VectorPrototype.inspect = VectorPrototype.toString;
 
 Vector.equal = function(a, b) {
-    var i, il;
+    var i;
 
     if (a === b) {
         return true;
     } else if (!a || !b || a.__size !== b.__size) {
         return false;
     } else {
-        i = -1;
-        il = a.__size - 1;
+        i = a.__size;
 
-        while (i++ < il) {
+        while (i--) {
             if (!isEqual(Vector_get(a, i), Vector_get(b, i))) {
                 return false;
             }
