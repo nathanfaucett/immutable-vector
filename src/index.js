@@ -565,7 +565,7 @@ VectorPrototype.toString = function() {
     return "[" + this.toArray().join(" ") + "]";
 };
 
-//VectorPrototype.inspect = VectorPrototype.toString;
+VectorPrototype.inspect = VectorPrototype.toString;
 
 Vector.equal = function(a, b) {
     var i;
