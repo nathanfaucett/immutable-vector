@@ -18,6 +18,8 @@ tape("Vector() should create new Vector from passed arguments", function(assert)
     assert.deepEqual(new Vector([0, 1, 2], 1, 2).toArray(), [
         [0, 1, 2], 1, 2
     ]);
+    assert.deepEqual(new Vector(createArray(1057)).size(), 1057);
+    assert.deepEqual(new Vector(createArray(31)).size(), 31);
 
     assert.end();
 });
