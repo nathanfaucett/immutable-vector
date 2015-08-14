@@ -4,7 +4,7 @@ var Benchmark = require("benchmark"),
     Vector = require("..");
 
 
-var suite = new Benchmark.Suite;
+var suite = new Benchmark.Suite();
 
 
 suite.add("immutable-vector", function() {

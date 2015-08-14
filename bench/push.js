@@ -4,12 +4,12 @@ var Benchmark = require("benchmark"),
     Vector = require("..");
 
 
-var suite = new Benchmark.Suite;
+var suite = new Benchmark.Suite();
 
 
 suite.add("immutable-vector", function() {
     var a = new Vector(0, 1, 2);
-    
+
     return function() {
         a.conj(0, 1);
     };
@@ -17,7 +17,7 @@ suite.add("immutable-vector", function() {
 
 suite.add("Immutable", function() {
     var a = Immutable.List.of([0, 1, 2]);
-        
+
     return function() {
         a.push(0, 1);
     };
@@ -25,7 +25,7 @@ suite.add("Immutable", function() {
 
 suite.add("mori vector", function() {
     var a = mori.vector(0, 1, 2);
-    
+
     return function() {
         mori.conj(a, 0, 1);
     };
