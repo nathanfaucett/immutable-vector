@@ -34,6 +34,7 @@
   },
   "dependencies": {
     "fast_slice": "git://github.com/nathanfaucett/fast_slice.git",
+    "fast_bind_this": "git://github.com/nathanfaucett/fast_bind_this.git",
     "is_array_like": "git://github.com/nathanfaucett/is_array_like.git",
     "is_equal": "git://github.com/nathanfaucett/is_equal.git",
     "is_null": "git://github.com/nathanfaucett/is_null.git",

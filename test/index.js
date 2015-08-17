@@ -186,6 +186,96 @@ tape("Vector iterator([reverse = false : Boolean]) (reverse = true) should retur
     assert.end();
 });
 
+tape("Vector every(callback[, thisArg])", function(assert) {
+    assert.equals(
+        Vector.of([0, 1, 2, 3, 4, 5]).every(function(value, index) {
+            return value === index;
+        }),
+        true
+    );
+    assert.equals(
+        Vector.of([0, 1, 2, 3, 4, 5]).every(function(value) {
+            return value === 1;
+        }),
+        false
+    );
+    assert.end();
+});
+
+tape("Vector filter(callback[, thisArg])", function(assert) {
+    assert.deepEquals(
+        Vector.of([0, 0, 2, 2, 4, 4]).filter(function(value, index) {
+            return value === index;
+        }).toArray(), [0, 2, 4]
+    );
+    assert.end();
+});
+
+tape("Vector forEach(callback[, thisArg])", function(assert) {
+    var count = 0;
+
+    Vector.of([0, 1, 2, 3, 4]).forEach(function() {
+        count += 1;
+    });
+    assert.equals(count, 5);
+
+    count = 0;
+    Vector.of([0, 1, 2, 3, 4]).forEach(function(value) {
+        count += 1;
+        if (value === 2) {
+            return false;
+        }
+    });
+    assert.equals(count, 3);
+
+    assert.end();
+});
+
+tape("Vector map(callback[, thisArg])", function(assert) {
+    assert.deepEquals(
+        Vector.of([0, 1, 2, 3, 4]).map(function(value, index) {
+            return value + index;
+        }).toArray(), [0, 2, 4, 6, 8]
+    );
+    assert.end();
+});
+
+tape("Vector reduce(callback[, thisArg])", function(assert) {
+    assert.deepEquals(
+        Vector.of([0, 1, 2, 3, 4]).reduce(function(currentValue, value) {
+            return currentValue + value;
+        }),
+        10
+    );
+    assert.end();
+});
+
+tape("Vector reduceRight(callback[, thisArg])", function(assert) {
+    assert.deepEquals(
+        Vector.of([0, 1, 2, 3, 4]).reduceRight(function(currentValue, value) {
+            return currentValue + value;
+        }),
+        10
+    );
+    assert.end();
+});
+
+tape("Vector some(callback[, thisArg])", function(assert) {
+    assert.equals(
+        Vector.of([0, 1, 2, 3, 4, 5]).some(function(value) {
+            return value === 3;
+        }),
+        true
+    );
+    assert.equals(
+        Vector.of([0, 1, 2, 3, 4, 5]).some(function(value) {
+            return value === 6;
+        }),
+        false
+    );
+    assert.end();
+});
+
 tape("Vector toString() should return toString representation of Vector", function(assert) {
     assert.equal((new Vector(0, 1, 2)).toString(), "[0 1 2]");
     assert.end();

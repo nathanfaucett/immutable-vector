@@ -1,6 +1,7 @@
 var isNull = require("is_null"),
     isUndefined = require("is_undefined"),
     isArrayLike = require("is_array_like"),
+    fastBindThis = require("fast_bind_this"),
     fastSlice = require("fast_slice"),
     isEqual = require("is_equal");
 
@@ -547,6 +548,163 @@ VectorPrototype.iterator = function(reverse) {
 if (ITERATOR_SYMBOL) {
     VectorPrototype[ITERATOR_SYMBOL] = VectorPrototype.iterator;
 }
+
+function Vector_every(_this, callback) {
+    var it = Vector_iterator(_this),
+        next = it.next(),
+        index = 0;
+
+    while (next.done === false) {
+        if (!callback(next.value, index, _this)) {
+            return false;
+        }
+        next = it.next();
+        index += 1;
+    }
+
+    return true;
+}
+
+VectorPrototype.every = function(callback, thisArg) {
+    return Vector_every(this, isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 3));
+};
+
+function Vector_filter(_this, callback) {
+    var it = Vector_iterator(_this),
+        results = [],
+        next = it.next(),
+        index = 0,
+        j = 0,
+        value;
+
+    while (next.done === false) {
+        value = next.value;
+
+        if (callback(value, index, _this)) {
+            results[j++] = value;
+        }
+
+        next = it.next();
+        index += 1;
+    }
+
+    return Vector.of(results);
+}
+
+VectorPrototype.filter = function(callback, thisArg) {
+    return Vector_filter(this, isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 3));
+};
+
+function Vector_forEach(_this, callback) {
+    var it = Vector_iterator(_this),
+        next = it.next(),
+        index = 0;
+
+    while (next.done === false) {
+        if (callback(next.value, index, _this) === false) {
+            break;
+        }
+        next = it.next();
+        index += 1;
+    }
+
+    return _this;
+}
+
+VectorPrototype.forEach = function(callback, thisArg) {
+    return Vector_forEach(this, isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 3));
+};
+
+VectorPrototype.each = VectorPrototype.forEach;
+
+function Vector_map(_this, callback) {
+    var it = Vector_iterator(_this),
+        next = it.next(),
+        results = new Array(_this.__size),
+        index = 0;
+
+    while (next.done === false) {
+        results[index] = callback(next.value, index, _this);
+        next = it.next();
+        index += 1;
+    }
+
+    return Vector.of(results);
+}
+
+VectorPrototype.map = function(callback, thisArg) {
+    return Vector_map(this, isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 3));
+};
+
+function Vector_reduce(_this, callback, initialValue) {
+    var it = Vector_iterator(_this),
+        next = it.next(),
+        value = initialValue,
+        index = 0;
+
+    if (isUndefined(value)) {
+        value = next.value;
+        next = it.next();
+        index = 1;
+    }
+
+    while (next.done === false) {
+        value = callback(value, next.value, index, _this);
+        next = it.next();
+        index += 1;
+    }
+
+    return value;
+}
+
+VectorPrototype.reduce = function(callback, initialValue, thisArg) {
+    return Vector_reduce(this, isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 4), initialValue);
+};
+
+function Vector_reduceRight(_this, callback, initialValue) {
+    var it = Vector_iteratorReverse(_this),
+        next = it.next(),
+        value = initialValue,
+        index = _this.__size;
+
+    if (isUndefined(value)) {
+        value = next.value;
+        next = it.next();
+        index -= 1;
+    }
+
+    while (next.done === false) {
+        index -= 1;
+        value = callback(value, next.value, index, _this);
+        next = it.next();
+    }
+
+    return value;
+}
+
+VectorPrototype.reduceRight = function(callback, initialValue, thisArg) {
+    return Vector_reduceRight(this, isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 4), initialValue);
+};
+
+function Vector_some(_this, callback) {
+    var it = Vector_iterator(_this),
+        next = it.next(),
+        index = 0;
+
+    while (next.done === false) {
+        if (callback(next.value, index, _this)) {
+            return true;
+        }
+        next = it.next();
+        index += 1;
+    }
+
+    return false;
+}
+
+VectorPrototype.some = function(callback, thisArg) {
+    return Vector_some(this, isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 3));
+};
 
 VectorPrototype.toArray = function() {
     var size = this.__size,
