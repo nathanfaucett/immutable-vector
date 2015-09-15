@@ -19,7 +19,7 @@
     "immutable-vector.js"
   ],
   "author": "Nathan Faucett",
-  "license": "BSD-2-Clause",
+  "license": "MIT",
   "readmeFilename": "README.md",
   "devDependencies": {
     "benchmark": "^1.0.0",

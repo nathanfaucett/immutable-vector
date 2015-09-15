@@ -549,9 +549,8 @@ if (ITERATOR_SYMBOL) {
     VectorPrototype[ITERATOR_SYMBOL] = VectorPrototype.iterator;
 }
 
-function Vector_every(_this, callback) {
-    var it = Vector_iterator(_this),
-        next = it.next(),
+function Vector_every(_this, it, callback) {
+    var next = it.next(),
         index = 0;
 
     while (next.done === false) {
@@ -566,12 +565,11 @@ function Vector_every(_this, callback) {
 }
 
 VectorPrototype.every = function(callback, thisArg) {
-    return Vector_every(this, isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 3));
+    return Vector_every(this, Vector_iterator(this), isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 3));
 };
 
-function Vector_filter(_this, callback) {
-    var it = Vector_iterator(_this),
-        results = [],
+function Vector_filter(_this, it, callback) {
+    var results = [],
         next = it.next(),
         index = 0,
         j = 0,
@@ -592,12 +590,11 @@ function Vector_filter(_this, callback) {
 }
 
 VectorPrototype.filter = function(callback, thisArg) {
-    return Vector_filter(this, isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 3));
+    return Vector_filter(this, Vector_iterator(this), isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 3));
 };
 
-function Vector_forEach(_this, callback) {
-    var it = Vector_iterator(_this),
-        next = it.next(),
+function Vector_forEach(_this, it, callback) {
+    var next = it.next(),
         index = 0;
 
     while (next.done === false) {
@@ -612,14 +609,34 @@ function Vector_forEach(_this, callback) {
 }
 
 VectorPrototype.forEach = function(callback, thisArg) {
-    return Vector_forEach(this, isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 3));
+    return Vector_forEach(this, Vector_iterator(this), isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 3));
 };
 
 VectorPrototype.each = VectorPrototype.forEach;
 
-function Vector_map(_this, callback) {
-    var it = Vector_iterator(_this),
-        next = it.next(),
+function Vector_forEachRight(_this, it, callback) {
+    var next = it.next(),
+        index = _this.__size;
+
+    while (next.done === false) {
+        index -= 1;
+        if (callback(next.value, index, _this) === false) {
+            break;
+        }
+        next = it.next();
+    }
+
+    return _this;
+}
+
+VectorPrototype.forEachRight = function(callback, thisArg) {
+    return Vector_forEachRight(this, Vector_iteratorReverse(this), isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 3));
+};
+
+VectorPrototype.eachRight = VectorPrototype.forEachRight;
+
+function Vector_map(_this, it, callback) {
+    var next = it.next(),
         results = new Array(_this.__size),
         index = 0;
 
@@ -633,12 +650,11 @@ function Vector_map(_this, callback) {
 }
 
 VectorPrototype.map = function(callback, thisArg) {
-    return Vector_map(this, isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 3));
+    return Vector_map(this, Vector_iterator(this), isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 3));
 };
 
-function Vector_reduce(_this, callback, initialValue) {
-    var it = Vector_iterator(_this),
-        next = it.next(),
+function Vector_reduce(_this, it, callback, initialValue) {
+    var next = it.next(),
         value = initialValue,
         index = 0;
 
@@ -658,12 +674,11 @@ function Vector_reduce(_this, callback, initialValue) {
 }
 
 VectorPrototype.reduce = function(callback, initialValue, thisArg) {
-    return Vector_reduce(this, isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 4), initialValue);
+    return Vector_reduce(this, Vector_iterator(this), isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 4), initialValue);
 };
 
-function Vector_reduceRight(_this, callback, initialValue) {
-    var it = Vector_iteratorReverse(_this),
-        next = it.next(),
+function Vector_reduceRight(_this, it, callback, initialValue) {
+    var next = it.next(),
         value = initialValue,
         index = _this.__size;
 
@@ -683,12 +698,11 @@ function Vector_reduceRight(_this, callback, initialValue) {
 }
 
 VectorPrototype.reduceRight = function(callback, initialValue, thisArg) {
-    return Vector_reduceRight(this, isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 4), initialValue);
+    return Vector_reduceRight(this, Vector_iteratorReverse(this), isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 4), initialValue);
 };
 
-function Vector_some(_this, callback) {
-    var it = Vector_iterator(_this),
-        next = it.next(),
+function Vector_some(_this, it, callback) {
+    var next = it.next(),
         index = 0;
 
     while (next.done === false) {
@@ -703,7 +717,7 @@ function Vector_some(_this, callback) {
 }
 
 VectorPrototype.some = function(callback, thisArg) {
-    return Vector_some(this, isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 3));
+    return Vector_some(this, Vector_iterator(this), isUndefined(thisArg) ? callback : fastBindThis(callback, thisArg, 3));
 };
 
 VectorPrototype.toArray = function() {
