@@ -3,6 +3,7 @@ var isNull = require("is_null"),
     isArrayLike = require("is_array_like"),
     fastBindThis = require("fast_bind_this"),
     fastSlice = require("fast_slice"),
+    defineProperty = require("define_property"),
     isEqual = require("is_equal");
 
 
@@ -81,8 +82,8 @@ VectorPrototype.size = function() {
     return this.__size;
 };
 
-if (Object.defineProperty) {
-    Object.defineProperty(VectorPrototype, "length", {
+if (defineProperty.hasGettersSetters) {
+    defineProperty(VectorPrototype, "length", {
         get: VectorPrototype.size
     });
 }

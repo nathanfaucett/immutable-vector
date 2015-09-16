@@ -33,6 +33,7 @@
     "zuul": "^3.0.0"
   },
   "dependencies": {
+    "define_property": "git://github.com/nathanfaucett/define_property.git",
     "fast_slice": "git://github.com/nathanfaucett/fast_slice.git",
     "fast_bind_this": "git://github.com/nathanfaucett/fast_bind_this.git",
     "is_array_like": "git://github.com/nathanfaucett/is_array_like.git",
