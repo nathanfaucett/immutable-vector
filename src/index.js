@@ -9,7 +9,10 @@ var isNull = require("is_null"),
 
 var INTERNAL_CREATE = {},
     VectorPrototype = Vector.prototype,
-    ITERATOR_SYMBOL = typeof(Symbol) === "function" ? Symbol.iterator : false,
+
+    HAS_SYMBOL = typeof(Symbol) === "function",
+    ITERATOR_SYMBOL = HAS_SYMBOL ? Symbol.iterator : false,
+    IS_VECTOR = HAS_SYMBOL ? Symbol("Vector") : "__ImmutableVector__",
 
     SHIFT = 5,
     SIZE = 1 << SHIFT,
@@ -73,10 +76,21 @@ Vector.of = function(value) {
 };
 
 Vector.isVector = function(value) {
-    return value && value.__Vector__ === true;
+    return value && value[IS_VECTOR] === true;
 };
 
-VectorPrototype.__Vector__ = true;
+if (HAS_SYMBOL) {
+    VectorPrototype[IS_VECTOR] = true;
+} else if (Object.defineProperty) {
+    defineProperty(VectorPrototype, IS_VECTOR, {
+        configurable: false,
+        enumerable: false,
+        writable: false,
+        value: true
+    });
+} else {
+    VectorPrototype[IS_VECTOR] = true;
+}
 
 VectorPrototype.size = function() {
     return this.__size;

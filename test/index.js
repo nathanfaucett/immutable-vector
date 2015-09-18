@@ -24,6 +24,16 @@ tape("Vector() should create new Vector from passed arguments", function(assert)
     assert.end();
 });
 
+tape("Vector.isVector(value) should return true if the object is a Vector", function(assert) {
+    var vector = new Vector(0, 1, 2),
+        notVector = [];
+
+    assert.equal(Vector.isVector(vector), true);
+    assert.equal(Vector.isVector(notVector), false);
+
+    assert.end();
+});
+
 tape("Vector size() should return size of the Vector", function(assert) {
     assert.equal(new Vector().size(), 0);
     assert.equal(new Vector([1, 2]).size(), 2);
