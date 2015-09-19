@@ -43,14 +43,14 @@ function Vector(value) {
     }
 }
 
-function Vector_createVector(_this, value, values) {
-    var length = values.length,
+function Vector_createVector(_this, value, args) {
+    var length = args.length,
         tail;
 
     if (length > 32) {
-        return Vector_conjArray(_this, values);
+        return Vector_conjArray(_this, args);
     } else if (length > 1) {
-        _this.__tail = copyArray(values, createArray(), length);
+        _this.__tail = copyArray(args, createArray(), length);
         _this.__size = length;
         return _this;
     } else if (length === 1) {
