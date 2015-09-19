@@ -18,9 +18,9 @@ var INTERNAL_CREATE = {},
     SIZE = 1 << SHIFT,
     MASK = SIZE - 1,
 
-    emptyArray = createArray(),
-    emptyNode = createNode(),
-    emptyVector = new Vector(INTERNAL_CREATE);
+    EMPTY_ARRAY = createArray(),
+    EMPTY_NODE = createNode(),
+    EMPTY_VECTOR = new Vector(INTERNAL_CREATE);
 
 
 module.exports = Vector;
@@ -31,8 +31,8 @@ function Vector(value) {
         throw new Error("Vector() must be called with new");
     }
 
-    this.__root = emptyNode;
-    this.__tail = emptyArray;
+    this.__root = EMPTY_NODE;
+    this.__tail = EMPTY_ARRAY;
     this.__size = 0;
     this.__shift = SHIFT;
 
@@ -63,7 +63,7 @@ function Vector_createVector(_this, value, values) {
             return _this;
         }
     } else {
-        return emptyVector;
+        return EMPTY_VECTOR;
     }
 }
 
@@ -71,7 +71,7 @@ Vector.of = function(value) {
     if (arguments.length > 0) {
         return Vector_createVector(new Vector(INTERNAL_CREATE), value, arguments);
     } else {
-        return emptyVector;
+        return EMPTY_VECTOR;
     }
 };
 
@@ -362,7 +362,7 @@ function Vector_conjArray(_this, values) {
         i = -1,
         il = values.length - 1;
 
-    if (tail === emptyArray) {
+    if (tail === EMPTY_ARRAY) {
         _this.__tail = createArray();
     } else if (size - tailOff(size) < SIZE) {
         _this.__tail = cloneArray(tail, (size + 1) & MASK);
@@ -464,7 +464,7 @@ function Vector_pop(_this) {
         newShift = shift;
 
         if (isNull(newRoot)) {
-            newRoot = emptyNode;
+            newRoot = EMPTY_NODE;
         } else if (shift > SHIFT && isUndefined(newRoot.array[1])) {
             newRoot = newRoot.array[0];
             newShift -= SHIFT;
@@ -485,7 +485,7 @@ VectorPrototype.pop = function() {
     if (size === 0) {
         return this;
     } else if (size === 1) {
-        return emptyVector;
+        return EMPTY_VECTOR;
     } else {
         return Vector_pop(this);
     }
@@ -512,7 +512,7 @@ VectorPrototype.shift = function() {
     if (size === 0) {
         return this;
     } else if (size === 1) {
-        return emptyVector;
+        return EMPTY_VECTOR;
     } else {
         return Vector_shift(this);
     }
