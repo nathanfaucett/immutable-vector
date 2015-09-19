@@ -166,6 +166,20 @@ VectorPrototype.last = function() {
     }
 };
 
+VectorPrototype.indexOf = function(value) {
+    var size = this.__size,
+        i = -1,
+        il = size - 1;
+
+    while (i++ < il) {
+        if (isEqual(Vector_get(this, i), value)) {
+            return i;
+        }
+    }
+
+    return -1;
+};
+
 function newPathSet(node, size, index, value, level) {
     var newNode = cloneNode(node, ((size - 1) >>> level) & MASK),
         subIndex;

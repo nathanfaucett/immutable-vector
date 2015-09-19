@@ -115,6 +115,15 @@ tape("Vector last() should return last element from vector", function(assert) {
     assert.end();
 });
 
+tape("Vector indexOf(value: Any) should return index of element from Vector", function(assert) {
+    var a = new Vector(1, 2, 3);
+    assert.equal(a.indexOf(1), 0);
+    assert.equal(a.indexOf(2), 1);
+    assert.equal(a.indexOf(3), 2);
+    assert.equal(a.indexOf(4), -1);
+    assert.end();
+});
+
 tape("Vector set(index : Int, value : Any) should return a new Vector with the updated element at index if value is not the same", function(assert) {
     var a = new Vector(createArray(33)),
         b = a.set(0, 32),
