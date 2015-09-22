@@ -327,7 +327,17 @@ tape("Vector some(callback[, thisArg])", function(assert) {
     assert.end();
 });
 
+tape("Vector join([separator = \" \"]) should join all elements of an Vector into a String", function(assert) {
+    var vector = new Vector(0, 1, 2);
+
+    assert.equal(vector.join(), "0 1 2");
+    assert.equal(vector.join(","), "0,1,2");
+    assert.equal(vector.join(", "), "0, 1, 2");
+    assert.end();
+});
+
 tape("Vector toString() should return toString representation of Vector", function(assert) {
-    assert.equal((new Vector(0, 1, 2)).toString(), "[0 1 2]");
+    var vector = new Vector(0, 1, 2);
+    assert.equal(vector.toString(), "[0 1 2]");
     assert.end();
 });
