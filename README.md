@@ -82,6 +82,9 @@ var a0 = a.push(3),
 #### push(...values: Array<Any>) -> Vector
     returns new Vector with values pushed to end of the Vector
 
+#### concat(...vectors: Array<Vector>) -> List
+    returns new Vector with values from vectors pushed to end of the Vector
+
 #### iterator([reverse = false: Boolean]) -> Iterator
     returns Iterator
 

@@ -53,7 +53,9 @@ function Vector_createVector(_this, value, args) {
         _this.__size = length;
         return _this;
     } else if (length === 1) {
-        if (isArrayLike(value)) {
+        if (isVector(value)) {
+            return value;
+        } else if (isArrayLike(value)) {
             return Vector_conjArray(_this, value.toArray ? value.toArray() : value);
         } else {
             tail = _this.__tail = createArray();
@@ -74,9 +76,11 @@ Vector.of = function(value) {
     }
 };
 
-Vector.isVector = function(value) {
+function isVector(value) {
     return value && value[IS_VECTOR] === true;
-};
+}
+
+Vector.isVector = isVector;
 
 defineProperty(VectorPrototype, IS_VECTOR, {
     configurable: false,
@@ -400,6 +404,38 @@ VectorPrototype.conj = function() {
 };
 
 VectorPrototype.push = VectorPrototype.conj;
+
+function Vector_concat(a, b) {
+    var asize = a.__size,
+        bsize = b.__size;
+
+    if (asize === 0) {
+        return b;
+    } else if (bsize === 0) {
+        return a;
+    } else {
+        return Vector_conjArray(Vector_clone(a), b.toArray());
+    }
+}
+
+VectorPrototype.concat = function() {
+    var length = arguments.length,
+        i, il, vector;
+
+    if (length !== 0) {
+        i = -1;
+        il = length - 1;
+        vector = this;
+
+        while (i++ < il) {
+            vector = Vector_concat(vector, arguments[i]);
+        }
+
+        return vector;
+    } else {
+        return this;
+    }
+};
 
 function Vector_unshift(_this, values) {
     var size = _this.__size,

@@ -53,6 +53,19 @@ tape("Vector conj(...values) should add values to end of Vector", function(asser
     assert.end();
 });
 
+tape("Vector concat(...vectors) should concat Vectors to end of Vector", function(assert) {
+    var a = new Vector(0, 1),
+        b = new Vector(2),
+        c = new Vector();
+
+    assert.deepEqual(a.concat(b).toArray(), [0, 1, 2]);
+    assert.deepEqual(a.concat(b, c).toArray(), [0, 1, 2]);
+    assert.deepEqual(a.concat(b, b).toArray(), [0, 1, 2, 2]);
+    assert.deepEqual(c.concat(b, a).toArray(), [2, 0, 1]);
+
+    assert.end();
+});
+
 tape("Vector unshift(...values) should add values to front of list", function(assert) {
     var a = new Vector(1, 2),
         b = a.unshift(0),
