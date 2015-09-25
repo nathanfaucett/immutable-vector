@@ -8,7 +8,6 @@ var isNull = require("is_null"),
 
 
 var INTERNAL_CREATE = {},
-    VectorPrototype = Vector.prototype,
 
     ITERATOR_SYMBOL = typeof(Symbol) === "function" ? Symbol.iterator : false,
     IS_VECTOR = "__ImmutableVector__",
@@ -19,7 +18,9 @@ var INTERNAL_CREATE = {},
 
     EMPTY_ARRAY = createArray(),
     EMPTY_NODE = createNode(),
-    EMPTY_VECTOR = new Vector(INTERNAL_CREATE);
+    EMPTY_VECTOR = new Vector(INTERNAL_CREATE),
+
+    VectorPrototype = Vector.prototype;
 
 
 module.exports = Vector;
