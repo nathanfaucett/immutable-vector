@@ -101,6 +101,10 @@ if (defineProperty.hasGettersSetters) {
 
 VectorPrototype.count = VectorPrototype.size;
 
+VectorPrototype.isEmpty = function() {
+    return this.__size === 0;
+};
+
 function tailOff(size) {
     if (size < 32) {
         return 0;
