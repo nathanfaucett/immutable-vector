@@ -3,6 +3,10 @@ immutable Vector
 
 immutable persistent vector for the browser and node.js
 
+# Install
+```bash
+$ npm install git://github.com/nathanfaucett/immutable-vector --save
+```
 
 # Usage
 ```javascript
