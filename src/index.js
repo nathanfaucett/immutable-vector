@@ -1,4 +1,5 @@
-var isNull = require("is_null"),
+var freeze = require("freeze"),
+    isNull = require("is_null"),
     isUndefined = require("is_undefined"),
     isArrayLike = require("is_array_like"),
     fastBindThis = require("fast_bind_this"),
@@ -43,6 +44,8 @@ function Vector(value) {
     }
 }
 
+Vector.EMPTY = freeze(EMPTY_VECTOR);
+
 function Vector_createVector(_this, value, args) {
     var length = args.length,
         tail;
@@ -52,7 +55,7 @@ function Vector_createVector(_this, value, args) {
     } else if (length > 1) {
         _this.__tail = copyArray(args, createArray(), length);
         _this.__size = length;
-        return _this;
+        return freeze(_this);
     } else if (length === 1) {
         if (isVector(value)) {
             return value;
@@ -62,7 +65,7 @@ function Vector_createVector(_this, value, args) {
             tail = _this.__tail = createArray();
             tail[0] = value;
             _this.__size = 1;
-            return _this;
+            return freeze(_this);
         }
     } else {
         return EMPTY_VECTOR;
@@ -211,14 +214,14 @@ function Vector_set(_this, index, value) {
             tail[maskedIndex] = value;
             vector = Vector_clone(_this);
             vector.__tail = tail;
-            return vector;
+            return freeze(vector);
         }
     } else if (isEqual(Vector_get(_this, index), value)) {
         return _this;
     } else {
         vector = Vector_clone(_this);
         vector.__root = newPathSet(_this.__root, size, index, value, _this.__shift);
-        return vector;
+        return freeze(vector);
     }
 }
 
@@ -388,7 +391,7 @@ function Vector_conjArray(_this, values) {
         Vector_conj(_this, values[i]);
     }
 
-    return _this;
+    return freeze(_this);
 }
 
 function Vector_clone(_this) {
@@ -524,7 +527,7 @@ function Vector_pop(_this) {
     vector.__size = size - 1;
     vector.__shift = newShift;
 
-    return vector;
+    return freeze(vector);
 }
 
 VectorPrototype.pop = function() {
