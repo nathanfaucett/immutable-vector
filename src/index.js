@@ -404,8 +404,12 @@ function Vector_clone(_this) {
 }
 
 VectorPrototype.conj = function() {
-    if (arguments.length !== 0) {
-        return Vector_conjArray(Vector_clone(this), arguments);
+    return this.pushArray(arguments);
+};
+
+VectorPrototype.pushArray = function(array) {
+    if (array.length !== 0) {
+        return Vector_conjArray(Vector_clone(this), array);
     } else {
         return this;
     }
