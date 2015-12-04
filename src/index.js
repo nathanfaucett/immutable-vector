@@ -430,8 +430,8 @@ function Vector_concat(a, b) {
     }
 }
 
-VectorPrototype.concat = function() {
-    var length = arguments.length,
+VectorPrototype.concatArray = function(array) {
+    var length = array.length,
         i, il, vector;
 
     if (length !== 0) {
@@ -440,13 +440,17 @@ VectorPrototype.concat = function() {
         vector = this;
 
         while (i++ < il) {
-            vector = Vector_concat(vector, arguments[i]);
+            vector = Vector_concat(vector, array[i]);
         }
 
         return vector;
     } else {
         return this;
     }
+};
+
+VectorPrototype.concat = function() {
+    return this.concatArray(arguments);
 };
 
 function Vector_unshift(_this, values) {
@@ -473,12 +477,16 @@ function Vector_unshift(_this, values) {
     return Vector_conjArray(new Vector(INTERNAL_CREATE), results);
 }
 
-VectorPrototype.unshift = function() {
-    if (arguments.length !== 0) {
-        return Vector_unshift(this, arguments);
+VectorPrototype.unshiftArray = function(array) {
+    if (array.length !== 0) {
+        return Vector_unshift(this, array);
     } else {
         return this;
     }
+};
+
+VectorPrototype.unshift = function() {
+    return this.unshiftArray(arguments);
 };
 
 function popTail(node, size, level) {
