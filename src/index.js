@@ -1,6 +1,7 @@
 var freeze = require("freeze"),
     isNull = require("is_null"),
     isUndefined = require("is_undefined"),
+    isNumber = require("is_number"),
     isArrayLike = require("is_array_like"),
     fastBindThis = require("fast_bind_this"),
     fastSlice = require("fast_slice"),
@@ -141,9 +142,9 @@ function Vector_get(_this, index) {
     return Vector_getArrayFor(_this, index)[index & MASK];
 }
 
-VectorPrototype.get = function(index) {
-    if (index < 0 || index >= this.__size) {
-        return undefined;
+VectorPrototype.get = function(index, defaultValue) {
+    if (!isNumber(index) || index < 0 || index >= this.__size) {
+        return defaultValue;
     } else {
         return Vector_get(this, index);
     }
@@ -151,21 +152,21 @@ VectorPrototype.get = function(index) {
 
 VectorPrototype.nth = VectorPrototype.get;
 
-VectorPrototype.first = function() {
+VectorPrototype.first = function(defaultValue) {
     var size = this.__size;
 
     if (size === 0) {
-        return undefined;
+        return defaultValue;
     } else {
         return Vector_get(this, 0);
     }
 };
 
-VectorPrototype.last = function() {
+VectorPrototype.last = function(defaultValue) {
     var size = this.__size;
 
     if (size === 0) {
-        return undefined;
+        return defaultValue;
     } else {
         return this.__tail[(size - 1) & MASK];
     }

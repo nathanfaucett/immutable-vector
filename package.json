@@ -34,12 +34,13 @@
   },
   "dependencies": {
     "define_property": "git://github.com/nathanfaucett/define_property.git",
-    "fast_slice": "git://github.com/nathanfaucett/fast_slice.git",
     "fast_bind_this": "git://github.com/nathanfaucett/fast_bind_this.git",
+    "fast_slice": "git://github.com/nathanfaucett/fast_slice.git",
     "freeze": "git://github.com/nathanfaucett/freeze.git",
     "is_array_like": "git://github.com/nathanfaucett/is_array_like.git",
     "is_equal": "git://github.com/nathanfaucett/is_equal.git",
     "is_null": "git://github.com/nathanfaucett/is_null.git",
+    "is_number": "git://github.com/nathanfaucett/is_number.git",
     "is_undefined": "git://github.com/nathanfaucett/is_undefined.git"
   }
 }
