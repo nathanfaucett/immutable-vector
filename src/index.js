@@ -73,12 +73,16 @@ function Vector_createVector(_this, value, args) {
     }
 }
 
-Vector.of = function(value) {
-    if (arguments.length > 0) {
-        return Vector_createVector(new Vector(INTERNAL_CREATE), value, arguments);
+Vector.fromArray = function(array) {
+    if (array.length > 0) {
+        return Vector_createVector(new Vector(INTERNAL_CREATE), array[0], array);
     } else {
         return EMPTY_VECTOR;
     }
+};
+
+Vector.of = function() {
+    return Vector.fromArray(arguments);
 };
 
 function isVector(value) {
