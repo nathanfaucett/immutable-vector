@@ -18,9 +18,8 @@ var INTERNAL_CREATE = {},
     SIZE = 1 << SHIFT,
     MASK = SIZE - 1,
 
-    EMPTY_ARRAY = createArray(),
-    EMPTY_NODE = createNode(),
-    EMPTY_VECTOR = new Vector(INTERNAL_CREATE),
+    EMPTY_ARRAY = freeze(createArray()),
+    EMPTY_VECTOR = freeze(new Vector(INTERNAL_CREATE)),
 
     VectorPrototype = Vector.prototype;
 
@@ -33,7 +32,7 @@ function Vector(value) {
         throw new Error("Vector() must be called with new");
     }
 
-    this.__root = EMPTY_NODE;
+    this.__root = EMPTY_ARRAY;
     this.__tail = EMPTY_ARRAY;
     this.__size = 0;
     this.__shift = SHIFT;
@@ -45,13 +44,13 @@ function Vector(value) {
     }
 }
 
-Vector.EMPTY = freeze(EMPTY_VECTOR);
+Vector.EMPTY = EMPTY_VECTOR;
 
 function Vector_createVector(_this, value, args) {
     var length = args.length,
         tail;
 
-    if (length > 32) {
+    if (length > SIZE) {
         return Vector_conjArray(_this, args);
     } else if (length > 1) {
         _this.__tail = copyArray(args, createArray(), length);
@@ -82,7 +81,7 @@ Vector.fromArray = function(array) {
 };
 
 Vector.of = function() {
-    return Vector.fromArray(arguments);
+    return Vector_createVector(new Vector(INTERNAL_CREATE), arguments[0], arguments);
 };
 
 function isVector(value) {
@@ -115,35 +114,33 @@ VectorPrototype.isEmpty = function() {
 };
 
 function tailOff(size) {
-    if (size < 32) {
+    if (size < SIZE) {
         return 0;
     } else {
         return ((size - 1) >>> SHIFT) << SHIFT;
     }
 }
 
-function Vector_getNode(_this, index) {
-    var node = _this.__root,
-        level = _this.__shift;
+function Vector_getArray(_this, index) {
+    var array, level;
 
-    while (level > 0) {
-        node = node.array[(index >>> level) & MASK];
-        level = level - SHIFT;
-    }
-
-    return node;
-}
-
-function Vector_getArrayFor(_this, index) {
     if (index >= tailOff(_this.__size)) {
         return _this.__tail;
     } else {
-        return Vector_getNode(_this, index).array;
+        array = _this.__root;
+        level = _this.__shift;
+
+        while (level > 0) {
+            array = array[(index >>> level) & MASK];
+            level = level - SHIFT;
+        }
+
+        return array;
     }
 }
 
 function Vector_get(_this, index) {
-    return Vector_getArrayFor(_this, index)[index & MASK];
+    return Vector_getArray(_this, index)[index & MASK];
 }
 
 VectorPrototype.get = function(index, defaultValue) {
@@ -190,18 +187,18 @@ VectorPrototype.indexOf = function(value) {
     return -1;
 };
 
-function newPathSet(node, size, index, value, level) {
-    var newNode = cloneNode(node, ((size - 1) >>> level) & MASK),
+function newPathSet(array, size, index, value, level) {
+    var newArray = cloneArray(array, ((size - 1) >>> level) & MASK),
         subIndex;
 
     if (level === 0) {
-        newNode.array[index & MASK] = value;
+        newArray[index & MASK] = value;
     } else {
         subIndex = (index >>> level) & MASK;
-        newNode.array[subIndex] = newPathSet(node.array[subIndex], size, index, value, level - SHIFT);
+        newArray[subIndex] = newPathSet(array[subIndex], size, index, value, level - SHIFT);
     }
 
-    return newNode;
+    return newArray;
 }
 
 function Vector_set(_this, index, value) {
@@ -312,59 +309,59 @@ VectorPrototype.remove = function(index, count) {
     }
 };
 
-function newPath(node, level) {
-    var newNode;
+function newPath(array, level) {
+    var newArray;
 
     if (level === 0) {
-        return node;
+        return array;
     } else {
-        newNode = createNode();
-        newNode.array[0] = newPath(node, level - SHIFT);
-        return newNode;
+        newArray = createArray();
+        newArray[0] = newPath(array, level - SHIFT);
+        return newArray;
     }
 }
 
-function pushTail(parentNode, tailNode, size, level) {
+function pushTail(parentArray, tailArray, size, level) {
     var subIndex = ((size - 1) >>> level) & MASK,
-        newNode = cloneNode(parentNode, subIndex),
-        nodeToInsert;
+        newArray = cloneArray(parentArray, subIndex),
+        arrayToInsert;
 
     if (level === SHIFT) {
-        nodeToInsert = tailNode;
+        arrayToInsert = tailArray;
     } else {
-        child = parentNode.array[subIndex];
+        child = parentArray[subIndex];
 
         if (isUndefined(child)) {
-            nodeToInsert = newPath(tailNode, level - SHIFT);
+            arrayToInsert = newPath(tailArray, level - SHIFT);
         } else {
-            nodeToInsert = pushTail(child, tailNode, size, level - SHIFT);
+            arrayToInsert = pushTail(child, tailArray, size, level - SHIFT);
         }
     }
 
-    newNode.array[subIndex] = nodeToInsert;
+    newArray[subIndex] = arrayToInsert;
 
-    return newNode;
+    return newArray;
 }
 
 function Vector_conj(_this, value) {
     var root = _this.__root,
         size = _this.__size,
         shift = _this.__shift,
-        tailNode, newShift, newRoot, newTail;
+        tailArray, newShift, newRoot, newTail;
 
     if (size - tailOff(size) < SIZE) {
         _this.__tail[size & MASK] = value;
     } else {
-        tailNode = new Node(_this.__tail);
+        tailArray = _this.__tail;
         newShift = shift;
 
         if ((size >>> SHIFT) > (1 << shift)) {
-            newRoot = createNode();
-            newRoot.array[0] = root;
-            newRoot.array[1] = newPath(tailNode, shift);
+            newRoot = createArray();
+            newRoot[0] = root;
+            newRoot[1] = newPath(tailArray, shift);
             newShift += SHIFT;
         } else {
-            newRoot = pushTail(root, tailNode, size, shift);
+            newRoot = pushTail(root, tailArray, size, shift);
         }
 
         newTail = createArray();
@@ -494,24 +491,24 @@ VectorPrototype.unshift = function() {
     return this.unshiftArray(arguments);
 };
 
-function popTail(node, size, level) {
+function popTail(array, size, level) {
     var subIndex = ((size - 2) >>> level) & MASK,
-        newChild, newNode;
+        newChild, newArray;
 
     if (level > 5) {
-        newChild = popTail(node.array[subIndex], size, level - SHIFT);
+        newChild = popTail(array[subIndex], size, level - SHIFT);
 
         if (isUndefined(newChild) && subIndex === 0) {
             return null;
         } else {
-            newNode = cloneNode(node, subIndex);
-            newNode.array[subIndex] = newChild;
-            return newNode;
+            newArray = cloneArray(array, subIndex);
+            newArray[subIndex] = newChild;
+            return newArray;
         }
     } else if (subIndex === 0) {
         return null;
     } else {
-        return cloneNode(node, subIndex);
+        return cloneArray(array, subIndex);
     }
 }
 
@@ -525,16 +522,16 @@ function Vector_pop(_this) {
         newRoot = _this.__root;
         newShift = _this.__shift;
     } else {
-        newTail = Vector_getArrayFor(_this, size - 2);
+        newTail = Vector_getArray(_this, size - 2);
 
         shift = _this.__shift;
         newRoot = popTail(_this.__root, size, shift);
         newShift = shift;
 
         if (isNull(newRoot)) {
-            newRoot = EMPTY_NODE;
-        } else if (shift > SHIFT && isUndefined(newRoot.array[1])) {
-            newRoot = newRoot.array[0];
+            newRoot = EMPTY_ARRAY;
+        } else if (shift > SHIFT && isUndefined(newRoot[1])) {
+            newRoot = newRoot[0];
             newShift -= SHIFT;
         }
     }
@@ -865,14 +862,6 @@ VectorPrototype.equals = function(b) {
     return Vector.equal(this, b);
 };
 
-function Node(array) {
-    this.array = array;
-}
-
-function createNode() {
-    return new Node(createArray());
-}
-
 function createArray() {
     return new Array(SIZE);
 }
@@ -890,13 +879,4 @@ function copyArray(a, b, length) {
 
 function cloneArray(a, length) {
     return copyArray(a, createArray(), length);
-}
-
-function copyNode(from, to, length) {
-    copyArray(from.array, to.array, length);
-    return to;
-}
-
-function cloneNode(node, length) {
-    return copyNode(node, createNode(), length);
 }

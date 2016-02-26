@@ -8,16 +8,28 @@ var suite = new Benchmark.Suite();
 
 
 suite.add("immutable-vector", function() {
-    new Vector(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-});
+    var a = new Vector(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+
+    return function() {
+        a.get(9);
+    };
+}());
 
 suite.add("Immutable", function() {
-    Immutable.List.of([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-});
+    var a = Immutable.List.of([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    return function() {
+        a.get(9);
+    };
+}());
 
 suite.add("mori vector", function() {
-    mori.vector(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-});
+    var a = mori.vector(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+
+    return function() {
+        mori.get(a, 9);
+    };
+}());
 
 suite.on("cycle", function(event) {
     console.log(String(event.target));
@@ -25,8 +37,8 @@ suite.on("cycle", function(event) {
 
 suite.on("complete", function() {
     console.log("Fastest is " + this.filter("fastest").pluck("name"));
-    console.log("==========================================\n");
+    console.log("=========================================\n");
 });
 
-console.log("\n= create =================================");
+console.log("\n= get ===================================");
 suite.run();

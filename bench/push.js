@@ -8,26 +8,26 @@ var suite = new Benchmark.Suite();
 
 
 suite.add("immutable-vector", function() {
-    var a = new Vector(0, 1, 2);
+    var a = new Vector(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     return function() {
-        a.conj(0, 1);
+        a.conj(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
     };
 }());
 
 suite.add("Immutable", function() {
-    var a = Immutable.List.of([0, 1, 2]);
+    var a = Immutable.List.of([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
     return function() {
-        a.push(0, 1);
+        a.push(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
     };
 }());
 
 suite.add("mori vector", function() {
-    var a = mori.vector(0, 1, 2);
+    var a = mori.vector(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     return function() {
-        mori.conj(a, 0, 1);
+        mori.conj(a, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
     };
 }());
 
