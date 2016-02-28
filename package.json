@@ -41,6 +41,7 @@
     "is_equal": "git://github.com/nathanfaucett/is_equal.git",
     "is_null": "git://github.com/nathanfaucett/is_null.git",
     "is_number": "git://github.com/nathanfaucett/is_number.git",
-    "is_undefined": "git://github.com/nathanfaucett/is_undefined.git"
+    "is_undefined": "git://github.com/nathanfaucett/is_undefined.git",
+    "iterator": "git://github.com/nathanfaucett/iterator.git"
   }
 }

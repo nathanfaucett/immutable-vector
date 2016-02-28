@@ -1,4 +1,5 @@
 var freeze = require("freeze"),
+    Iterator = require("iterator"),
     isNull = require("is_null"),
     isUndefined = require("is_undefined"),
     isNumber = require("is_number"),
@@ -20,6 +21,8 @@ var INTERNAL_CREATE = {},
 
     EMPTY_ARRAY = freeze(createArray()),
     EMPTY_VECTOR = freeze(new Vector(INTERNAL_CREATE)),
+
+    IteratorValue = Iterator.Value,
 
     VectorPrototype = Vector.prototype;
 
@@ -53,7 +56,7 @@ function Vector_createVector(_this, value, args) {
     if (length > SIZE) {
         return Vector_conjArray(_this, args);
     } else if (length > 1) {
-        _this.__tail = copyArray(args, createArray(), length);
+        _this.__tail = cloneArray(args, length);
         _this.__size = length;
         return freeze(_this);
     } else if (length === 1) {
@@ -85,7 +88,7 @@ Vector.of = function() {
 };
 
 function isVector(value) {
-    return value && value[IS_VECTOR] === true;
+    return !!(value && value[IS_VECTOR]);
 }
 
 Vector.isVector = isVector;
@@ -143,9 +146,9 @@ function Vector_get(_this, index) {
     return Vector_getArray(_this, index)[index & MASK];
 }
 
-VectorPrototype.get = function(index, defaultValue) {
+VectorPrototype.get = function(index, notSetValue) {
     if (!isNumber(index) || index < 0 || index >= this.__size) {
-        return defaultValue;
+        return notSetValue;
     } else {
         return Vector_get(this, index);
     }
@@ -153,21 +156,21 @@ VectorPrototype.get = function(index, defaultValue) {
 
 VectorPrototype.nth = VectorPrototype.get;
 
-VectorPrototype.first = function(defaultValue) {
+VectorPrototype.first = function(notSetValue) {
     var size = this.__size;
 
     if (size === 0) {
-        return defaultValue;
+        return notSetValue;
     } else {
         return Vector_get(this, 0);
     }
 };
 
-VectorPrototype.last = function(defaultValue) {
+VectorPrototype.last = function(notSetValue) {
     var size = this.__size;
 
     if (size === 0) {
-        return defaultValue;
+        return notSetValue;
     } else {
         return this.__tail[(size - 1) & MASK];
     }
@@ -583,24 +586,15 @@ VectorPrototype.shift = function() {
     }
 };
 
-function VectorIteratorValue(done, value) {
-    this.done = done;
-    this.value = value;
-}
-
-function VectorIterator(next) {
-    this.next = next;
-}
-
 function Vector_iterator(_this) {
     var index = 0,
         size = _this.__size;
 
-    return new VectorIterator(function next() {
+    return new Iterator(function next() {
         if (index >= size) {
-            return new VectorIteratorValue(true, undefined);
+            return Iterator.createDone();
         } else {
-            return new VectorIteratorValue(false, Vector_get(_this, index++));
+            return new IteratorValue(Vector_get(_this, index++), false);
         }
     });
 }
@@ -608,11 +602,11 @@ function Vector_iterator(_this) {
 function Vector_iteratorReverse(_this) {
     var index = _this.__size - 1;
 
-    return new VectorIterator(function next() {
+    return new Iterator(function next() {
         if (index < 0) {
-            return new VectorIteratorValue(true, undefined);
+            return Iterator.createDone();
         } else {
-            return new VectorIteratorValue(false, Vector_get(_this, index--));
+            return new IteratorValue(Vector_get(_this, index--), false);
         }
     });
 }
