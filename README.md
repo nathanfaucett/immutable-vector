@@ -5,12 +5,12 @@ immutable persistent vector for the browser and node.js
 
 # Install
 ```bash
-$ npm install git://github.com/nathanfaucett/immutable-vector --save
+$ npm install @nathanfaucett/immutable-vector --save
 ```
 
 # Usage
 ```javascript
-var ImmutableVector = require("immutable-vector");
+var ImmutableVector = require("@nathanfaucett/immutable-vector");
 
 
 var a = new ImmutableVector([0, 1, 2]),

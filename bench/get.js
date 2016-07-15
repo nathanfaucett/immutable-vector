@@ -1,6 +1,6 @@
-var Benchmark = require("benchmark"),
-    mori = require("mori"),
-    Immutable = require("immutable"),
+var Benchmark = require("@nathanfaucett/benchmark"),
+    mori = require("@nathanfaucett/mori"),
+    Immutable = require("@nathanfaucett/immutable"),
     Vector = require("..");
 
 
