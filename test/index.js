@@ -354,3 +354,9 @@ tape("Vector toString() should return toString representation of Vector", functi
     assert.equal(vector.toString(), "[0 1 2]");
     assert.end();
 });
+
+tape("Vector toJSON/fromJSON() should create Vector from json", function(assert) {
+    var vector = Vector.fromJSON([0, 1, 2]);
+    assert.deepEquals(vector.toJSON(), [0, 1, 2]);
+    assert.end();
+});

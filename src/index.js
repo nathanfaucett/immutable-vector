@@ -13,7 +13,7 @@ var freeze = require("@nathanfaucett/freeze"),
 var INTERNAL_CREATE = {},
 
     ITERATOR_SYMBOL = typeof(Symbol) === "function" ? Symbol.iterator : false,
-    IS_VECTOR = "__ImmutableVector__",
+    IS_VECTOR = "_ImmutableVector_",
 
     SHIFT = 5,
     SIZE = 1 << SHIFT,
@@ -35,10 +35,10 @@ function Vector(value) {
         throw new Error("Vector() must be called with new");
     }
 
-    this.__root = EMPTY_ARRAY;
-    this.__tail = EMPTY_ARRAY;
-    this.__size = 0;
-    this.__shift = SHIFT;
+    this._root = EMPTY_ARRAY;
+    this._tail = EMPTY_ARRAY;
+    this._size = 0;
+    this._shift = SHIFT;
 
     if (value !== INTERNAL_CREATE) {
         return Vector_createVector(this, value, arguments);
@@ -56,8 +56,8 @@ function Vector_createVector(_this, value, args) {
     if (length > SIZE) {
         return Vector_conjArray(_this, args);
     } else if (length > 1) {
-        _this.__tail = cloneArray(args, length);
-        _this.__size = length;
+        _this._tail = cloneArray(args, length);
+        _this._size = length;
         return freeze(_this);
     } else if (length === 1) {
         if (isVector(value)) {
@@ -65,9 +65,9 @@ function Vector_createVector(_this, value, args) {
         } else if (isArrayLike(value)) {
             return Vector_conjArray(_this, value.toArray ? value.toArray() : value);
         } else {
-            tail = _this.__tail = createArray();
+            tail = _this._tail = createArray();
             tail[0] = value;
-            _this.__size = 1;
+            _this._size = 1;
             return freeze(_this);
         }
     } else {
@@ -101,7 +101,7 @@ defineProperty(VectorPrototype, IS_VECTOR, {
 });
 
 VectorPrototype.size = function() {
-    return this.__size;
+    return this._size;
 };
 
 if (defineProperty.hasGettersSetters) {
@@ -113,7 +113,7 @@ if (defineProperty.hasGettersSetters) {
 VectorPrototype.count = VectorPrototype.size;
 
 VectorPrototype.isEmpty = function() {
-    return this.__size === 0;
+    return this._size === 0;
 };
 
 function tailOff(size) {
@@ -127,11 +127,11 @@ function tailOff(size) {
 function Vector_getArray(_this, index) {
     var array, level;
 
-    if (index >= tailOff(_this.__size)) {
-        return _this.__tail;
+    if (index >= tailOff(_this._size)) {
+        return _this._tail;
     } else {
-        array = _this.__root;
-        level = _this.__shift;
+        array = _this._root;
+        level = _this._shift;
 
         while (level > 0) {
             array = array[(index >>> level) & MASK];
@@ -147,7 +147,7 @@ function Vector_get(_this, index) {
 }
 
 VectorPrototype.get = function(index, notSetValue) {
-    if (!isNumber(index) || index < 0 || index >= this.__size) {
+    if (!isNumber(index) || index < 0 || index >= this._size) {
         return notSetValue;
     } else {
         return Vector_get(this, index);
@@ -157,7 +157,7 @@ VectorPrototype.get = function(index, notSetValue) {
 VectorPrototype.nth = VectorPrototype.get;
 
 VectorPrototype.first = function(notSetValue) {
-    var size = this.__size;
+    var size = this._size;
 
     if (size === 0) {
         return notSetValue;
@@ -167,17 +167,17 @@ VectorPrototype.first = function(notSetValue) {
 };
 
 VectorPrototype.last = function(notSetValue) {
-    var size = this.__size;
+    var size = this._size;
 
     if (size === 0) {
         return notSetValue;
     } else {
-        return this.__tail[(size - 1) & MASK];
+        return this._tail[(size - 1) & MASK];
     }
 };
 
 VectorPrototype.indexOf = function(value) {
-    var size = this.__size,
+    var size = this._size,
         i = -1,
         il = size - 1;
 
@@ -205,11 +205,11 @@ function newPathSet(array, size, index, value, level) {
 }
 
 function Vector_set(_this, index, value) {
-    var size = _this.__size,
+    var size = _this._size,
         tail, maskedIndex, vector;
 
     if (index >= tailOff(size)) {
-        tail = _this.__tail;
+        tail = _this._tail;
         maskedIndex = index & MASK;
 
         if (isEqual(tail[maskedIndex], value)) {
@@ -218,20 +218,20 @@ function Vector_set(_this, index, value) {
             tail = cloneArray(tail, (size + 1) & MASK);
             tail[maskedIndex] = value;
             vector = Vector_clone(_this);
-            vector.__tail = tail;
+            vector._tail = tail;
             return freeze(vector);
         }
     } else if (isEqual(Vector_get(_this, index), value)) {
         return _this;
     } else {
         vector = Vector_clone(_this);
-        vector.__root = newPathSet(_this.__root, size, index, value, _this.__shift);
+        vector._root = newPathSet(_this._root, size, index, value, _this._shift);
         return freeze(vector);
     }
 }
 
 VectorPrototype.set = function(index, value) {
-    if (index < 0 || index >= this.__size) {
+    if (index < 0 || index >= this._size) {
         throw new Error("Vector set(index, value) index out of bounds");
     } else {
         return Vector_set(this, index, value);
@@ -240,7 +240,7 @@ VectorPrototype.set = function(index, value) {
 
 
 function Vector_insert(_this, index, values) {
-    var size = _this.__size,
+    var size = _this._size,
         length = values.length,
         newSize = size + length,
         results = new Array(newSize),
@@ -270,7 +270,7 @@ function Vector_insert(_this, index, values) {
 }
 
 VectorPrototype.insert = function(index) {
-    if (index < 0 || index >= this.__size) {
+    if (index < 0 || index >= this._size) {
         throw new Error("Vector set(index, value) index out of bounds");
     } else {
         return Vector_insert(this, index, fastSlice(arguments, 1));
@@ -278,7 +278,7 @@ VectorPrototype.insert = function(index) {
 };
 
 function Vector_remove(_this, index, count) {
-    var size = _this.__size,
+    var size = _this._size,
         results = new Array(size - count),
         j = 0,
         i, il;
@@ -299,7 +299,7 @@ function Vector_remove(_this, index, count) {
 }
 
 VectorPrototype.remove = function(index, count) {
-    var size = this.__size;
+    var size = this._size;
 
     count = count || 1;
 
@@ -347,15 +347,15 @@ function pushTail(parentArray, tailArray, size, level) {
 }
 
 function Vector_conj(_this, value) {
-    var root = _this.__root,
-        size = _this.__size,
-        shift = _this.__shift,
+    var root = _this._root,
+        size = _this._size,
+        shift = _this._shift,
         tailArray, newShift, newRoot, newTail;
 
     if (size - tailOff(size) < SIZE) {
-        _this.__tail[size & MASK] = value;
+        _this._tail[size & MASK] = value;
     } else {
-        tailArray = _this.__tail;
+        tailArray = _this._tail;
         newShift = shift;
 
         if ((size >>> SHIFT) > (1 << shift)) {
@@ -369,27 +369,27 @@ function Vector_conj(_this, value) {
 
         newTail = createArray();
         newTail[0] = value;
-        _this.__tail = newTail;
+        _this._tail = newTail;
 
-        _this.__root = newRoot;
-        _this.__shift = newShift;
+        _this._root = newRoot;
+        _this._shift = newShift;
     }
 
-    _this.__size = size + 1;
+    _this._size = size + 1;
 
     return _this;
 }
 
 function Vector_conjArray(_this, values) {
-    var tail = _this.__tail,
-        size = _this.__size,
+    var tail = _this._tail,
+        size = _this._size,
         i = -1,
         il = values.length - 1;
 
     if (tail === EMPTY_ARRAY) {
-        _this.__tail = createArray();
+        _this._tail = createArray();
     } else if (size - tailOff(size) < SIZE) {
-        _this.__tail = cloneArray(tail, (size + 1) & MASK);
+        _this._tail = cloneArray(tail, (size + 1) & MASK);
     }
 
     while (i++ < il) {
@@ -401,10 +401,10 @@ function Vector_conjArray(_this, values) {
 
 function Vector_clone(_this) {
     var vector = new Vector(INTERNAL_CREATE);
-    vector.__root = _this.__root;
-    vector.__tail = _this.__tail;
-    vector.__size = _this.__size;
-    vector.__shift = _this.__shift;
+    vector._root = _this._root;
+    vector._tail = _this._tail;
+    vector._size = _this._size;
+    vector._shift = _this._shift;
     return vector;
 }
 
@@ -423,8 +423,8 @@ VectorPrototype.pushArray = function(array) {
 VectorPrototype.push = VectorPrototype.conj;
 
 function Vector_concat(a, b) {
-    var asize = a.__size,
-        bsize = b.__size;
+    var asize = a._size,
+        bsize = b._size;
 
     if (asize === 0) {
         return b;
@@ -459,7 +459,7 @@ VectorPrototype.concat = function() {
 };
 
 function Vector_unshift(_this, values) {
-    var size = _this.__size,
+    var size = _this._size,
         length = values.length,
         newSize = size + length,
         results = new Array(newSize),
@@ -517,18 +517,18 @@ function popTail(array, size, level) {
 
 function Vector_pop(_this) {
     var vector = new Vector(INTERNAL_CREATE),
-        size = _this.__size,
+        size = _this._size,
         shift, newTail, newRoot, newShift;
 
     if (size - tailOff(size) > 1) {
-        newTail = _this.__tail.slice(0, (size - 1) & MASK);
-        newRoot = _this.__root;
-        newShift = _this.__shift;
+        newTail = _this._tail.slice(0, (size - 1) & MASK);
+        newRoot = _this._root;
+        newShift = _this._shift;
     } else {
         newTail = Vector_getArray(_this, size - 2);
 
-        shift = _this.__shift;
-        newRoot = popTail(_this.__root, size, shift);
+        shift = _this._shift;
+        newRoot = popTail(_this._root, size, shift);
         newShift = shift;
 
         if (isNull(newRoot)) {
@@ -539,16 +539,16 @@ function Vector_pop(_this) {
         }
     }
 
-    vector.__root = newRoot;
-    vector.__tail = newTail;
-    vector.__size = size - 1;
-    vector.__shift = newShift;
+    vector._root = newRoot;
+    vector._tail = newTail;
+    vector._size = size - 1;
+    vector._shift = newShift;
 
     return freeze(vector);
 }
 
 VectorPrototype.pop = function() {
-    var size = this.__size;
+    var size = this._size;
 
     if (size === 0) {
         return this;
@@ -560,7 +560,7 @@ VectorPrototype.pop = function() {
 };
 
 function Vector_shift(_this) {
-    var size = _this.__size,
+    var size = _this._size,
         newSize = size - 1,
         results = new Array(newSize),
         j = 0,
@@ -575,7 +575,7 @@ function Vector_shift(_this) {
 }
 
 VectorPrototype.shift = function() {
-    var size = this.__size;
+    var size = this._size;
 
     if (size === 0) {
         return this;
@@ -588,7 +588,7 @@ VectorPrototype.shift = function() {
 
 function Vector_iterator(_this) {
     var index = 0,
-        size = _this.__size;
+        size = _this._size;
 
     return new Iterator(function next() {
         if (index >= size) {
@@ -600,7 +600,7 @@ function Vector_iterator(_this) {
 }
 
 function Vector_iteratorReverse(_this) {
-    var index = _this.__size - 1;
+    var index = _this._size - 1;
 
     return new Iterator(function next() {
         if (index < 0) {
@@ -690,7 +690,7 @@ VectorPrototype.each = VectorPrototype.forEach;
 
 function Vector_forEachRight(_this, it, callback) {
     var next = it.next(),
-        index = _this.__size;
+        index = _this._size;
 
     while (next.done === false) {
         index -= 1;
@@ -711,7 +711,7 @@ VectorPrototype.eachRight = VectorPrototype.forEachRight;
 
 function Vector_map(_this, it, callback) {
     var next = it.next(),
-        results = new Array(_this.__size),
+        results = new Array(_this._size),
         index = 0;
 
     while (next.done === false) {
@@ -754,7 +754,7 @@ VectorPrototype.reduce = function(callback, initialValue, thisArg) {
 function Vector_reduceRight(_this, it, callback, initialValue) {
     var next = it.next(),
         value = initialValue,
-        index = _this.__size;
+        index = _this._size;
 
     if (isUndefined(value)) {
         value = next.value;
@@ -795,7 +795,7 @@ VectorPrototype.some = function(callback, thisArg) {
 };
 
 VectorPrototype.toArray = function() {
-    var size = this.__size,
+    var size = this._size,
         array = new Array(size),
         i = -1,
         il = size - 1;
@@ -808,7 +808,7 @@ VectorPrototype.toArray = function() {
 };
 
 VectorPrototype.join = function(separator) {
-    var size = this.__size,
+    var size = this._size,
         result = "",
         i = -1,
         il = size - 1;
@@ -832,15 +832,18 @@ VectorPrototype.toString = function() {
 
 VectorPrototype.inspect = VectorPrototype.toString;
 
+VectorPrototype.toJSON = VectorPrototype.toArray;
+Vector.fromJSON = Vector.fromArray;
+
 Vector.equal = function(a, b) {
     var i;
 
     if (a === b) {
         return true;
-    } else if (!a || !b || a.__size !== b.__size) {
+    } else if (!a || !b || a._size !== b._size) {
         return false;
     } else {
-        i = a.__size;
+        i = a._size;
 
         while (i--) {
             if (!isEqual(Vector_get(a, i), Vector_get(b, i))) {
