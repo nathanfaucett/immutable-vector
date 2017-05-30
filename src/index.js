@@ -327,7 +327,7 @@ function newPath(array, level) {
 function pushTail(parentArray, tailArray, size, level) {
     var subIndex = ((size - 1) >>> level) & MASK,
         newArray = cloneArray(parentArray, subIndex),
-        arrayToInsert;
+        arrayToInsert, child;
 
     if (level === SHIFT) {
         arrayToInsert = tailArray;
