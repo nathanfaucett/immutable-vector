@@ -1,14 +1,18 @@
-immutable Vector
+Immutable Vector
 =======
 
-immutable persistent vector for the browser and node.js
+Immutable persistent vector for the browser and node.js
 
-# Install
+# Install using npm
 ```bash
 $ npm install @nathanfaucett/immutable-vector --save
 ```
+# Install using yarn
+```bash
+$ yarn add @nathanfaucett/immutable-vector --save
+```
 
-# Usage
+# Example Usage
 ```javascript
 var ImmutableVector = require("@nathanfaucett/immutable-vector");
 

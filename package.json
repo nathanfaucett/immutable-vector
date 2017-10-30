@@ -1,6 +1,6 @@
 {
   "name": "@nathanfaucett/immutable-vector",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "immutable persistent vector for the browser and node.js",
   "repository": {
     "type": "git",
