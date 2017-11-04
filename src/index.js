@@ -19,7 +19,7 @@ var INTERNAL_CREATE = {},
     SIZE = 1 << SHIFT,
     MASK = SIZE - 1,
 
-    EMPTY_ARRAY = freeze(createArray()),
+    EMPTY_ARRAY = freeze(createSizedArray(0)),
     EMPTY_VECTOR = freeze(new Vector(INTERNAL_CREATE)),
 
     IteratorValue = Iterator.Value,
@@ -31,10 +31,6 @@ module.exports = Vector;
 
 
 function Vector(value) {
-    if (!(this instanceof Vector)) {
-        throw new Error("Vector() must be called with new");
-    }
-
     this._root = EMPTY_ARRAY;
     this._tail = EMPTY_ARRAY;
     this._size = 0;
@@ -53,7 +49,7 @@ function Vector_createVector(_this, value, args) {
     var length = args.length,
         tail;
 
-    if (length > SIZE) {
+    if (length >= SIZE) {
         return Vector_conjArray(_this, args);
     } else if (length > 1) {
         _this._tail = cloneArray(args, length);
@@ -65,7 +61,7 @@ function Vector_createVector(_this, value, args) {
         } else if (isArrayLike(value)) {
             return Vector_conjArray(_this, value.toArray ? value.toArray() : value);
         } else {
-            tail = _this._tail = createArray();
+            tail = _this._tail = createSizedArray(1);
             tail[0] = value;
             _this._size = 1;
             return freeze(_this);
@@ -318,7 +314,7 @@ function newPath(array, level) {
     if (level === 0) {
         return array;
     } else {
-        newArray = createArray();
+        newArray = createSizedArray(1);
         newArray[0] = newPath(array, level - SHIFT);
         return newArray;
     }
@@ -359,7 +355,7 @@ function Vector_conj(_this, value) {
         newShift = shift;
 
         if ((size >>> SHIFT) > (1 << shift)) {
-            newRoot = createArray();
+            newRoot = createSizedArray(2);
             newRoot[0] = root;
             newRoot[1] = newPath(tailArray, shift);
             newShift += SHIFT;
@@ -367,7 +363,7 @@ function Vector_conj(_this, value) {
             newRoot = pushTail(root, tailArray, size, shift);
         }
 
-        newTail = createArray();
+        newTail = createSizedArray(1);
         newTail[0] = value;
         _this._tail = newTail;
 
@@ -860,7 +856,11 @@ VectorPrototype.equals = function(b) {
 };
 
 function createArray() {
-    return new Array(SIZE);
+    return createSizedArray(SIZE);
+}
+
+function createSizedArray(size) {
+    return new Array(size);
 }
 
 function copyArray(a, b, length) {
@@ -875,5 +875,5 @@ function copyArray(a, b, length) {
 }
 
 function cloneArray(a, length) {
-    return copyArray(a, createArray(), length);
+    return copyArray(a, createSizedArray(length), length);
 }

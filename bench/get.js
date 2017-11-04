@@ -11,7 +11,7 @@ suite.add("immutable-vector", function() {
     var a = new Vector(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     return function() {
-        a.get(9);
+        a.get(5);
     };
 }());
 
@@ -19,7 +19,7 @@ suite.add("Immutable", function() {
     var a = Immutable.List.of([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
     return function() {
-        a.get(9);
+        a.get(5);
     };
 }());
 
@@ -27,7 +27,7 @@ suite.add("mori vector", function() {
     var a = mori.vector(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     return function() {
-        mori.get(a, 9);
+        mori.get(a, 5);
     };
 }());
 

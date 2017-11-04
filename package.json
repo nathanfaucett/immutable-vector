@@ -1,6 +1,6 @@
 {
   "name": "@nathanfaucett/immutable-vector",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "immutable persistent vector for the browser and node.js",
   "repository": {
     "type": "git",
@@ -22,27 +22,27 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "devDependencies": {
+    "@nathanfaucett/task": "0.0.10",
     "benchmark": "^2.1.4",
-    "@nathanfaucett/task": "^0.0.8",
-    "gulp-jsbeautifier": "^2.1.0",
+    "gulp-jsbeautifier": "^2.1.1",
     "gulp-jshint": "^2.0.4",
-    "jshint": "^2.9.4",
-    "immutable": "^3.8.1",
+    "immutable": "^3.8.2",
+    "jshint": "^2.9.5",
     "mori": "^0.3.2",
     "tap-spec": "^4.1.1",
-    "tape": "^4.6.3",
+    "tape": "^4.8.0",
     "zuul": "^3.11.1"
   },
   "dependencies": {
-    "@nathanfaucett/define_property": "^0.0.3",
-    "@nathanfaucett/fast_bind_this": "^0.0.1",
-    "@nathanfaucett/fast_slice": "^0.0.1",
-    "@nathanfaucett/freeze": "^0.0.1",
-    "@nathanfaucett/is_array_like": "^0.0.2",
-    "@nathanfaucett/is_equal": "^0.0.1",
-    "@nathanfaucett/is_null": "^0.0.1",
-    "@nathanfaucett/is_number": "^0.0.1",
-    "@nathanfaucett/is_undefined": "^0.0.1",
-    "@nathanfaucett/iterator": "^0.0.2"
+    "@nathanfaucett/define_property": "0.0.3",
+    "@nathanfaucett/fast_bind_this": "0.0.1",
+    "@nathanfaucett/fast_slice": "0.0.1",
+    "@nathanfaucett/freeze": "0.0.1",
+    "@nathanfaucett/is_array_like": "0.0.2",
+    "@nathanfaucett/is_equal": "0.0.1",
+    "@nathanfaucett/is_null": "0.0.1",
+    "@nathanfaucett/is_number": "0.0.1",
+    "@nathanfaucett/is_undefined": "0.0.1",
+    "@nathanfaucett/iterator": "0.0.2"
   }
 }
